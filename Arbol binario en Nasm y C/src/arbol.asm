@@ -66,62 +66,59 @@ finalizar:
 
 ;Punto 3 ----------------------------------------------
         
-minimo:
-    push ebp            ;apilo ebp
-    mov ebp, esp        ;muevo a ebp el esp
-
-    mov ebx, [ebp + 8]  ;puntero nodo
-
-    cmp ebx, 0          ;comparo si el nodo es vacio
-    je finalizarminimo  ;si es vacio salgo
-
-    mov ecx,[ebx]       ;guardo el valor del puntero
-    mov edx,[ebx+4]     ;guardo puntero izquierdo
-    mov eax,[edx]       ;guardo el valor del nodo izquierdo
-    cmp ecx,eax         ;comparo el valor del nodo con el del nodo izquierdo
-    jl buscar_en_der    ;si el valor del nodo es menor se va a la derecha
-    jmp buscar_en_izq   ;salta a la izquierda
-
-buscar_en_der:
-    mov eax,[ebx+8]         ;tomo el nodo derecho
-    mov eax,[eax]           ;guardo el valor del nodo derecho
-    cmp ecx,eax             ;compero el valor del nodo con el del derecho
-    jl retornar_principal   ;si es menor retorno el principal   
-    jmp retornar_der        ;retorno derecho
-
-buscar_en_izq:
-    mov eax,[ebx+4]     ;guardo el puntero izquierdo
-    mov eax,[eax]       ;guardo el valor del nodo izquierdo
-    mov edx,[ebx+8]     ;guardo el puntero derecho
-    mov edx,[edx]       ;guardo el valor del nodo derecho
-    cmp eax,edx         ;comparo nodo izq con nodo der
-    jl retornar_izq     ;si es menor retorno izquierdo
-    jmp retornar_der    ;retornar derecho
-    
+buscarMinimo:               ;guarda el primer valor como minimo
+   push ebp
+   mov ebp, esp
+  
+   mov ebx, [ebp + 8]      ;accedo al valor del primer nodo
+   mov ebx,[ebx]      
+   mov [minimo],ebx        ;guardo el valor del nodo en res
  
-min:
-    mov ecx,eax         ;guardo en ecx el nodo minimo
-    mov eax,ecx         ;paso el minimo a eax
-    jmp finalizar       ;finalizo programa
+   mov esp, ebp
+   pop ebp 
+ 
+   jmp buscarMinimoAux
+ 
+buscarMinimoAux:                  ;recorre para buscar el minimo
+   push ebp
+   mov ebp, esp
+ 
+   mov ebx, [ebp + 8]      ;puntero nodo
+   mov ecx,[minimo]        ;pongo el minimo en ecx para comparar
+ 
+   cmp ebx, 0              ;si es cero finalizo
+   je finalizar
+ 
+   call compararMinimo       ;verifico si es minimo y lo guarda
+ 
+   push ebx                ;apilo nodo actual para pasar por parametro
+   mov eax, [ebx + 4]      ;paso el nodo izq
+   push eax                ;apilo el nodo izq para pasar por parametro
+   call buscarMinimoAux    ;llamo a buscarMin para la recursividad
+   add esp, 4              ;recupero esp
+   pop ebx                 ;recupero nodo actual
+   push ebx                ;apilo nodo actual para pasar por parametro
+   mov eax, [ebx + 8]      ;paso el nodo derecho
+   push eax                ;apilo el nodo der para pasar por parametro
+   call buscarMinimoAux 	       ;llamo a buscarMin para la recursividad
+  
+   add esp, 4              ;recupero esp
+             
+   mov eax,minimo          ;guardo el minimo para retornarlo
+   jmp finalizar           ;finalizo programa
+ 
+ 
+ 
+compararMinimo:
+   cmp ecx,[ebx]           ;compara si el valor del nodo es menor al minimo
+   jg guardarMinimo                  ;salta a min para guardar el valor
+   ret
+ 
+guardarMinimo:
+   mov ecx,[ebx]           ;muevo el valor del nodo a ecx
+   mov [minimo],ecx        ;guardo en minimo el nodo
+   ret
 
-
-retornar_der:
-    mov ecx,[ebp+8]     ;guardo en ecx el nodo minimo
-    mov eax,[ecx+8]     ;muevo e eax el nodo minimo
-    jmp finalizar       ;finalizo programa
-    
-retornar_principal:
-    mov eax,[ebp+8]     ;guardo en acx el minimo
-    jmp finalizar       ;finalizo
-
-retornar_izq:
-    mov ecx,[ebp+8]     ;guardo en ecx el minimo
-    mov eax,[ecx+4]     ;muevo a eax el minimo
-    jmp finalizar       ;finalizo programa
-
-finalizarminimo: 
-    mov eax,[ebp+8]
-    jmp finalizar       ;retorno eax
 
 
 ;Punto 4 ----------------------------------------------
